@@ -7,8 +7,8 @@ pygame.init()
 pygame.display.set_caption("Spin Hunter")
 screen = pygame.display.set_mode ((800, 800))
 attackupgrade = "Attack Upgrade"
-#backround = 
-#backroundsebastianstyle=
+
+
 
 
 Bye = False
@@ -18,10 +18,10 @@ coins = 0
 mousePos = (xpos, ypos)
 playerPos = Vector2(380,390)
 enemyPos = Vector2(random.randint(0,800),random.randint(0, 800))
-playerDamage = 10
+playerDamage = 20
 enemy = list()
 xchoice = [0,800]
-
+aenemies = 1000
 
 
 
@@ -40,6 +40,7 @@ class Player:
         self.sword4 = pygame.image.load("epic.png")
         self.sword5 = pygame.transform.smoothscale(self.sword4,(30,120))
 
+    #draws the player/ swords in the middle
     def draw(self):
         
         sword3 = pygame.transform.rotate(self.sword2, self.angle)
@@ -58,25 +59,29 @@ class Player:
         if self.angle >= 360:
             self.angle = 0
 
-    
+    #upgrades the damage when you press the button
     def upgrade(self):
-        if mousePos[0] >= 0 and mousePos[0] <= 120 and mousePos[1] >= 700 and mousePos[1] <= 800:
-            print("its clicking")
+        if mousePos[0] >= 0 and mousePos[0] <= 300 and mousePos[1] >= 650 and mousePos[1] <= 800:
             self.damage += 1
          
+            
+    #Update
+    def update(self):
+        return self.damage
+         
 
-player = Player(playerPos.x,playerPos.y, playerDamage)
+player = Player(playerPos.x, playerPos.y, playerDamage)
 #ENEMY ----------------------------------------------------------------------------------
 class Enemy:
     
     #INIT -------------------------------
     def __init__(self, xpos, ypos, playerdamage):
         self.pos = Vector2(xpos, ypos)
-        self.random = random.randint(0,5)
-        self.healthOPTIONS = [45,65,95,115,200] # list of all of the health the enemies
+        self.healthOPTIONS = [200,300,400,500,1000] # list of all of the health the enemies
         self.health = random.choice(self.healthOPTIONS) #going into the list of health and randomly assigning health to each enemy
+        self.maxHealth = int(f"{self.health}")
         self.playerDamage = playerdamage
-        self.speed = 0.7
+        self.speed = 1.02
         self.vel = (player.pos - self.pos).normalize()
         self.radius = 10
         self.dead = False
@@ -87,15 +92,15 @@ class Enemy:
     def getcoins(self):
         if self.health <= 0:
             if self.dead == False:
-                if self.random == 0:
+                if self.maxHealth == self.healthOPTIONS[0]:
                     self.coins = 10
-                elif self.random == 1:
+                elif self.maxHealth == self.healthOPTIONS[1]:
                     self.coins = 20
-                elif self.random == 2:
+                elif self.maxHealth == self.healthOPTIONS[2]:
                     self.coins = 30
-                elif self.random == 3:
+                elif self.maxHealth == self.healthOPTIONS[3]:
                     self.coins = 40
-                elif self.random == 4:
+                elif self.maxHealth == self.healthOPTIONS[4]:
                     self.coins = 50
             else:
                 self.coins = 0
@@ -103,21 +108,23 @@ class Enemy:
         return self.coins
     
     #UPDATE -------------------------------
-    def update(self):
+    def update(self,playerDam):
+        self.playerDamage = playerDam
         self.pos += self.vel*self.speed
         if self.pos.x >= 320 and self.pos.x <= 440 and self.pos.y >= 330 and self.pos.y <= 450:
-            self.health -= 1
-            if self.speed > 0.65:
-                self.speed -= 0.05
-        elif self.speed < 1:
-            self.speed += 0.025
-
+            self.health -= (self.playerDamage*10)/60
+            if self.speed > 0.63:
+                self.speed -= 0.03
+        elif self.speed < 1.03:
+            self.speed += 0.03
+        #print(f"Health: {self.health}")
             
         if self.dead == True:
                 self.pos.x = random.randint(0,800)
                 self.pos.y = random.randint(0,800)
                 self.vel = (player.pos - self.pos).normalize()
                 self.health = random.choice(self.healthOPTIONS)
+                self.maxHealth = int(f"{self.health}")
                 self.dead = False
 
         
@@ -126,20 +133,20 @@ class Enemy:
     #DRAW ---------------------------------
     def draw(self):
         #if self.health > 0:
-            if self.random == 0:
-                pygame.draw.circle(screen, (random.randrange(0,255), random.randrange(0,255), random.randrange(0,255)), (self.pos.x,self.pos.y), self.radius)
+            if self.maxHealth == self.healthOPTIONS[0]:
+                pygame.draw.circle(screen, (0,244,0), (self.pos.x,self.pos.y), self.radius)
 
-            elif self.random == 1:
-                pygame.draw.circle(screen, (random.randrange(0,255), random.randrange(0,255), random.randrange(0,255)), (self.pos.x,self.pos.y), self.radius)
+            elif self.maxHealth == self.healthOPTIONS[1]:
+                pygame.draw.circle(screen, (0,0,244), (self.pos.x,self.pos.y), self.radius)
 
-            elif self.random == 2:
-                pygame.draw.circle(screen, (random.randrange(0,255), random.randrange(0,255), random.randrange(0,255)), (self.pos.x,self.pos.y), self.radius)
+            elif self.maxHealth == self.healthOPTIONS[2]:
+                pygame.draw.circle(screen, (244,244,0), (self.pos.x,self.pos.y), self.radius)
             
-            elif self.random == 3:
-                pygame.draw.circle(screen, (random.randrange(0,255), random.randrange(0,255), random.randrange(0,255)), (self.pos.x,self.pos.y), self.radius)
+            elif self.maxHealth == self.healthOPTIONS[3]:
+                pygame.draw.circle(screen, (211,0,244), (self.pos.x,self.pos.y), self.radius)
 
-            elif self.random == 4:
-                pygame.draw.circle(screen, (random.randrange(0,255), random.randrange(0,255), random.randrange(0,255)), (self.pos.x,self.pos.y), self.radius)
+            elif self.maxHealth == self.healthOPTIONS[4]:
+                pygame.draw.circle(screen, (244,0,0), (self.pos.x,self.pos.y), self.radius)
 
 
 
@@ -157,19 +164,24 @@ class Enemy:
         return self.health
     
 class Background:
-    
+    #boom backround very cool
     def __init__(self):
         self.pos = Vector2(399,399)
-        self.baseImage = pygame.image.load("bg2.jpg")
-        self.scaled = pygame.transform.smoothscale(self.baseImage,(800,800))
+        self.baseImage = pygame.image.load("bg4.jpg")
+        self.scaled = pygame.transform.smoothscale(self.baseImage,(60,60))
+        self.step1 = pygame.transform.scale2x(self.scaled)
+        self.step2 = pygame.transform.scale2x(self.step1)
+        self.step3 = pygame.transform.scale2x(self.step2)
         self.angle = 0
 
+    #rotates very cool backround picture
     def draw(self):
-        rotation = pygame.transform.rotate(self.scaled, self.angle)
+        step4 = pygame.transform.scale(self.step3,(1000,1000))
+        rotation = pygame.transform.rotate(step4, self.angle)
         offset = Vector2(rotation.get_rect().topleft) - Vector2(rotation.get_rect().center)
         screen.blit(rotation, self.pos + offset)
 
-        self.angle += 1
+        self.angle += 0.5
         if self.angle >= 360:
             self.angle = 0
 
@@ -179,7 +191,8 @@ epicBG = Background()
 
 
 
-for i in range(30):
+
+for i in range(aenemies):
     enemy.append(Enemy(random.choice(xchoice), random.randint(0,800), playerDamage))
 
 
@@ -187,6 +200,7 @@ for i in range(30):
 #Main loop ------------------------------------------------------------------------------------
 while Bye == False:
     time.tick(60)
+    #print(pygame.time.get_ticks())
     r = random.randrange(0,1)
     g = random.randrange(0,1)
     b = random.randrange(0,1)
@@ -208,36 +222,44 @@ while Bye == False:
     
     
     #RENDER SECTION----------------------------------------------------------------------------
-    screen.fill ((r,g,b))
+    screen.fill((r,g,b,100))
+    time.get_fps()
     epicBG.draw()
     player.draw()
 
-
+    #UPDATE SECTION-------------------------------------------------------------------------
     for i in range(len(enemy)):
         enemy[i].draw()
-        enemy[i].update()
+        enemy[i].update(player.update())
         
-        #if enemy[i].update()!="dead" and enemy[i].getcoins()>0:
         coins += enemy[i].getcoins()
     for i in range(len(enemy)):
         enemy[i].S()
-        
+    #-------------------------------------------------------------------------------------------------  
 
-        
-
+    pygame.draw.rect(screen, (0,0,0), (100, 700, 150, 150))
+    #this is the coins
     my_font = pygame.font.SysFont('Comic Sans MS', 30)
+    text_label3 = my_font.render(str("Coins: "),1,(255,0,0))
     text_surface = my_font.render(str(coins), 1 ,(255, 0, 0))
-
+    #click damage
     my_font = pygame.font.SysFont('Comic Sans MS', 30)
-    text_surface2 = my_font.render(str(playerDamage), 1 ,(255, 0, 0))
-
+    text_surface2 = my_font.render(str(player.update()), 1 ,(255, 0, 0))
+    text_label2 = my_font.render(str("Click Damage"),1,(255,0,0))
+    #spin damage
+    my_font = pygame.font.SysFont('Comic Sans MS', 30)
+    text_surface3 = my_font.render(str(player.update()*10), 1 ,(255, 0, 0))
+    text_label2 = my_font.render(str("Sword Damage"),1,(255,0,0))
+    #attack upgrade
     my_font = pygame.font.SysFont('Comic Sans MS', 20)
-    text_surface1 = my_font.render(str(attackupgrade), 1 ,(random.randrange(0,255), random.randrange(0,255),random.randrange(0,255)))
+    text_surface1 = my_font.render(str(attackupgrade), 1 ,(random.randrange(0,155), random.randrange(0,155),random.randrange(0,155)))
     
     screen.blit(text_surface1, (100,700))
-    screen.blit(text_surface, (0,0))
+    screen.blit(text_surface, (90,0))
+    screen.blit(text_label3, (0,0))
+    
     screen.blit(text_surface2,(700,0))
-
-    pygame.display.flip() 
+    screen.blit(text_surface3,(600,0))
+    pygame.display.flip()
 
 pygame.quit()
